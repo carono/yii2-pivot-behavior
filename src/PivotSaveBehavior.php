@@ -48,10 +48,10 @@ class PivotSaveBehavior extends \yii\base\Behavior
         if ($this->canGetProperty($name)) {
             return $this->getStoredPivots($name);
         } else {
-            return parent::__get($name, $value);
+            return parent::__get($name);
         }
     }
-    
+
     public function getStoredPivots($attribute)
     {
         if ($attribute == $this->attribute) {
@@ -108,10 +108,13 @@ class PivotSaveBehavior extends \yii\base\Behavior
         $pivots = $this->getStoredPivots($event->data);
 
         if (!method_exists($this->owner, 'addPivot')) {
-            throw new \Exception('Class ' . get_class($this->owner) . ' must use carono\yii2migrate\traits\PivotTrait trait');
+            throw new \Exception('Class ' . get_class($this->owner) . ' must use carono\yii2pivot\PivotTrait (carono/yii2-pivot) trait or implement addPivot($model,$pivotClass,attributes=[]) function.');
         }
 
         if ($this->deletePivotsBeforeSave && $pivots !== null) {
+            if (!method_exists($this->owner, 'deletePivots')) {
+                throw new \Exception('Class ' . get_class($this->owner) . ' must use carono\yii2pivot\PivotTrait (carono/yii2-pivot) trait or implement deletePivots($pivotClass) function.');
+            }
             $this->owner->deletePivots($this->pivotClass);
         }
 
